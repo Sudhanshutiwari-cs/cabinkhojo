@@ -159,7 +159,7 @@ export default function Home() {
                 darkMode ? "" : ""
               }`}>
                <img 
-  src="/logo_main.png" 
+  src="/Logo_main.png" 
   alt="Logo" 
   className="w-18 h-18 object-contain"
 />
