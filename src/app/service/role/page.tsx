@@ -79,13 +79,13 @@ export default function RoleSelection() {
     // Redirect based on selected role
     switch(role) {
       case 'student':
-        router.push('/student-dashboard');
+        router.push('/student/dashboard');
         break;
       case 'hod':
-        router.push('/hod-dashboard');
+        router.push('/hod/dashboard');
         break;
       case 'guard':
-        router.push('/guard-dashboard');
+        router.push('/gaurd/scanner');
         break;
       default:
         break;

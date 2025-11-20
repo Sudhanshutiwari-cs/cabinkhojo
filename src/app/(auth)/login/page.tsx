@@ -33,8 +33,21 @@ export default function Login() {
           router.push(`/${profile.role}/dashboard`);
         }
       }
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error) {
+      // Option 1: Type guard to check if it's an Error object
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        // Option 2: Handle unknown error type
+        alert('An unexpected error occurred');
+      }
+      
+      // Option 3: More specific error handling for Supabase errors
+      // if (typeof error === 'object' && error !== null && 'message' in error) {
+      //   alert((error as { message: string }).message);
+      // } else {
+      //   alert('An unexpected error occurred');
+      // }
     } finally {
       setLoading(false);
     }

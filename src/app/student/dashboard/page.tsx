@@ -39,53 +39,50 @@ export default function StudentDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    checkUserAndFetchData();
-  }, []);
+  checkUserAndFetchData();
+}, []);
 
-  const checkUserAndFetchData = async () => {
-    try {
-      // Check if user is authenticated
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+const checkUserAndFetchData = async () => {
+  try {
+    // 1️⃣ Check if user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      setUser(user as User);
-
-      // Fetch user profile to check role
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError.message);
-        // If profile doesn't exist or error, redirect to login
-        router.push('/login');
-        return;
-      }
-
-      setProfile(profileData);
-
-      // Check if user has student role
-      if (profileData.role !== 'student') {
-        console.error('Access denied: User is not a student');
-        router.push('/unauthorized');
-        return;
-      }
-
-      // Fetch gate passes only for this student
-      await fetchGatePasses(profileData.student_id || user.id);
-
-    } catch (error: any) {
-      console.error('Error in checkUserAndFetchData:', error.message);
-      router.push('/login');
+    if (userError || !user) {
+      router.replace('/login');   // FIXED: replace() prevents weird back button issues
+      return;
     }
-  };
+
+    setUser(user as User);
+
+    // 2️⃣ Fetch user profile
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profileData) {
+      router.replace('/login');   // FIXED: redirect immediately
+      return;
+    }
+
+    setProfile(profileData);
+
+    // 3️⃣ Role check
+    if (profileData.role !== 'student') {
+      router.replace('/login');   // FIXED
+      return;
+    }
+
+    // 4️⃣ Fetch gate passes
+    await fetchGatePasses(profileData.student_id || user.id);
+
+  } catch (error: any) {
+    console.error('Error in checkUserAndFetchData:', error.message);
+    router.replace('/login');   // FIXED
+  }
+};
+
 
   const fetchGatePasses = async (studentId: string) => {
     try {
