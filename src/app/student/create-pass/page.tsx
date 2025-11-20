@@ -1,8 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+
+interface GatePassError {
+  message: string;
+}
 
 export default function CreateGatePass() {
   const [reason, setReason] = useState('');
@@ -37,10 +41,10 @@ export default function CreateGatePass() {
             .single();
 
           if (hodError) throw hodError;
-          setDepartmentHodId(hodData?.id);
+          setDepartmentHodId(hodData?.id || null);
         }
-      } catch (error: any) {
-        console.error('Error fetching department HOD:', error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         alert('Error loading department information');
       }
     };
@@ -77,8 +81,9 @@ export default function CreateGatePass() {
       if (error) throw error;
 
       router.push('/student/dashboard');
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
