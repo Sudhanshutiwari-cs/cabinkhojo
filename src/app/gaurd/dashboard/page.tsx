@@ -6,7 +6,7 @@ import { BrowserQRCodeReader } from '@zxing/browser';
 import { supabase } from '@/lib/supabase';
 
 interface ScanResult {
-  status: 'verified' | 'invalid' | 'pending' | 'rejected';
+  status: 'verified' | 'invalid' | 'pending' | 'rejected' | 'deleted';
   message: string;
   passId?: string;
   studentId?: string;
@@ -148,21 +148,40 @@ export default function GuardScanner() {
     isScanningRef.current = true;
 
     // Use decodeFromVideoDevice for continuous scanning
-    // Use decodeFromVideoDevice for continuous scanning
-codeReaderRef.current.decodeFromVideoDevice(
-  undefined, // Changed from null to undefined
-  videoRef.current,
-  (result, error) => {
-    if (result && isScanningRef.current) {
-      processQRCode(result.getText());
+    codeReaderRef.current.decodeFromVideoDevice(
+      undefined, // Changed from null to undefined
+      videoRef.current,
+      (result, error) => {
+        if (result && isScanningRef.current) {
+          processQRCode(result.getText());
+        }
+        
+        // Don't log normal "not found" errors
+        if (error && !error.message?.includes('NotFoundException') && isScanningRef.current) {
+          console.debug('Scan error:', error);
+        }
+      }
+    );
+  };
+
+  const deletePass = async (passId: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('gatepasses')
+        .delete()
+        .eq('id', passId);
+
+      if (error) {
+        console.error('Error deleting pass:', error);
+        return false;
+      }
+
+      console.log(`Pass ${passId} successfully deleted`);
+      return true;
+    } catch (err) {
+      console.error('Exception while deleting pass:', err);
+      return false;
     }
-    
-    // Don't log normal "not found" errors
-    if (error && !error.message?.includes('NotFoundException') && isScanningRef.current) {
-      console.debug('Scan error:', error);
-    }
-  }
-);
   };
 
   const processQRCode = async (data: string) => {
@@ -201,14 +220,28 @@ codeReaderRef.current.decodeFromVideoDevice(
       }
 
       if (gatePass.status === 'approved') {
-        setResult({
-          status: 'verified',
-          message: 'Access Granted',
-          passId: qrData.passId,
-          studentId: gatePass.student_id,
-          reason: gatePass.reason,
-          date: gatePass.date
-        });
+        // Delete the pass after successful verification
+        const deleteSuccess = await deletePass(qrData.passId);
+        
+        if (deleteSuccess) {
+          setResult({
+            status: 'verified',
+            message: 'Access Granted - Pass Used',
+            passId: qrData.passId,
+            studentId: gatePass.student_id,
+            reason: gatePass.reason,
+            date: gatePass.date
+          });
+        } else {
+          setResult({
+            status: 'verified',
+            message: 'Access Granted - But pass deletion failed',
+            passId: qrData.passId,
+            studentId: gatePass.student_id,
+            reason: gatePass.reason,
+            date: gatePass.date
+          });
+        }
       } else if (gatePass.status === 'pending') {
         setResult({
           status: 'pending',
@@ -434,6 +467,10 @@ codeReaderRef.current.decodeFromVideoDevice(
               <div className="flex items-center justify-center space-x-2">
                 <span>📱</span>
                 <span>Hold device steady</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 text-blue-600 font-medium">
+                <span>⚠️</span>
+                <span>Pass will be deleted after successful scan</span>
               </div>
             </div>
           </div>
