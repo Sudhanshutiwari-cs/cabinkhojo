@@ -175,7 +175,7 @@ export default function Home() {
         </div>
 
         {/* Three Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Option 1: Find the Cabin */}
           <div 
             onClick={handleFindCabin}
@@ -225,28 +225,7 @@ export default function Home() {
           </div>
 
           {/* Option 3: Both Options */}
-          <div 
-            onClick={handleBothOptions}
-            className={`rounded-lg ${themeClasses.card} p-8 border-l-4 border-purple-600 transition-colors duration-300 cursor-pointer hover:shadow-lg transform hover:-translate-y-2 transition-all duration-200 text-center`}
-          >
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              darkMode ? "bg-purple-900/30" : "bg-purple-50"
-            }`}>
-              <SearchIcon className={`w-8 h-8 ${darkMode ? "text-purple-400" : "text-purple-600"}`} />
-            </div>
-            <h2 className={`text-2xl font-bold ${themeClasses.text.primary} mb-4`}>
-              Both Services
-            </h2>
-            <p className={`${themeClasses.text.secondary} mb-6`}>
-              Access both cabin location services and gatepass management in one comprehensive dashboard.
-            </p>
-            <div className={`inline-flex items-center ${darkMode ? "text-purple-400" : "text-purple-600"} font-semibold`}>
-              Access All
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
+          
         </div>
 
         {/* Additional Information */}

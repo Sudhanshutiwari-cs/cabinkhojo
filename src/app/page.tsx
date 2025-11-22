@@ -160,7 +160,7 @@ export default function Home() {
               </h2>
               <p className={`${themeClasses.text.secondary} mb-2`}>AKTU Code : 165</p>
               <p className={`text-sm ${themeClasses.text.muted} mt-3`}>
-                Use <span className={`font-mono font-bold ${themeClasses.text.accent}`}>KIT168</span> as institute code to join college on mobile app.
+                Use <span className={`font-mono font-bold ${themeClasses.text.accent}`}>KIT165</span> as institute code to join college on mobile app.
               </p>
             </div>
           </div>
