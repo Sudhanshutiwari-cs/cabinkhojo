@@ -8,7 +8,8 @@ import {
   PlusIcon,
   QrCodeIcon,
   XCircleIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  ArrowPathIcon // Added refresh icon
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -38,6 +39,7 @@ export default function StudentDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // Added refreshing state
   const router = useRouter();
 
   const fetchGatePasses = useCallback(async (studentId: string) => {
@@ -56,6 +58,7 @@ export default function StudentDashboard() {
       console.error('Error fetching gate passes:', errorMessage);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -101,6 +104,13 @@ export default function StudentDashboard() {
       router.replace('/login');
     }
   }, [router, fetchGatePasses]);
+
+  const handleRefresh = async () => {
+    if (!profile) return;
+    
+    setRefreshing(true);
+    await fetchGatePasses(profile.student_id || user?.id || '');
+  };
 
   const handleLogout = async () => {
     try {
@@ -224,19 +234,35 @@ export default function StudentDashboard() {
               Welcome to your gate pass dashboard. Here's an overview of your requests.
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            disabled={logoutLoading}
-            className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-          >
-            <ArrowRightOnRectangleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">
-              {logoutLoading ? 'Logging out...' : 'Logout'}
-            </span>
-            <span className="sm:hidden">
-              {logoutLoading ? '...' : 'Logout'}
-            </span>
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors shadow disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              title="Refresh data"
+            >
+              <ArrowPathIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">
+                {refreshing ? 'Refreshing...' : 'Refresh'}
+              </span>
+            </button>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              disabled={logoutLoading}
+              className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">
+                {logoutLoading ? 'Logging out...' : 'Logout'}
+              </span>
+              <span className="sm:hidden">
+                {logoutLoading ? '...' : 'Logout'}
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Header with Actions */}

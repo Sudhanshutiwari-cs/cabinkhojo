@@ -18,7 +18,8 @@ import {
   FiRefreshCw,
   FiAlertCircle,
   FiDownload,
-  FiAward
+  FiAward,
+  FiLogOut
 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 
@@ -67,6 +68,7 @@ export default function HODRequests() {
   const [userId, setUserId] = useState<string | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   useEffect(() => {
     checkUserRoleAndDepartment();
@@ -163,6 +165,31 @@ export default function HODRequests() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Add logout function
+  const handleLogout = async (): Promise<void> => {
+    try {
+      setLogoutLoading(true);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) throw error;
+      
+      // Clear local state
+      setUserRole(null);
+      setUserDepartment(null);
+      setUserId(null);
+      setGatePasses([]);
+      
+      // Redirect to login page
+      router.replace('/login');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('Error logging out:', errorMessage);
+      alert('Failed to logout. Please try again.');
+    } finally {
+      setLogoutLoading(false);
     }
   };
 
@@ -421,12 +448,7 @@ export default function HODRequests() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Debug Info - Remove in production */}
-        {debugInfo && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-            <p className="text-sm text-yellow-800"><strong>Debug:</strong> {debugInfo}</p>
-          </div>
-        )}
+        
 
         {/* Header */}
         <motion.div
@@ -464,6 +486,20 @@ export default function HODRequests() {
               >
                 <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
+              </button>
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              >
+                <FiLogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">
+                  {logoutLoading ? 'Logging out...' : 'Logout'}
+                </span>
+                <span className="sm:hidden">
+                  {logoutLoading ? '...' : 'Logout'}
+                </span>
               </button>
             </div>
           </div>
