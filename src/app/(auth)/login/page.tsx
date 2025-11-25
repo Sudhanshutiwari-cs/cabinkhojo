@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -92,7 +93,6 @@ export default function Login() {
   }
 
   return (
-    
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
@@ -131,11 +131,22 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
+          {/* Forgot Password Link */}
+          <div className="flex justify-end">
+            <Link 
+              href="/forgot-password"
+              className="text-sm text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors duration-200"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
