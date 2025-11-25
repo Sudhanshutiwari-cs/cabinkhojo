@@ -7,16 +7,24 @@ interface PageProps {
 
 export default async function ResetPasswordPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const accessToken = Array.isArray(params.access_token) 
-    ? params.access_token[0] 
-    : params.access_token;
+  
+  // Debug all search params
+  console.log("🔍 [SERVER] All searchParams:", JSON.stringify(params, null, 2));
+  
+  // Try different possible parameter names
+  const accessToken = 
+    params.access_token ||
+    params.token ||
+    params.code ||
+    params.accessToken;
 
-  console.log("🔍 [SERVER] ResetPasswordPage - accessToken:", accessToken ? "Present" : "Missing");
-  console.log("🔍 [SERVER] ResetPasswordPage - full searchParams:", params);
+  const tokenValue = Array.isArray(accessToken) ? accessToken[0] : accessToken;
+
+  console.log("🔍 [SERVER] Extracted token:", tokenValue ? `Present (${tokenValue.substring(0, 20)}...)` : "NULL");
 
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <ResetPasswordClient serverAccessToken={accessToken || null} />
+      <ResetPasswordClient serverAccessToken={tokenValue || null} />
     </Suspense>
   );
 }
