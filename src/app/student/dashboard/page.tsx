@@ -32,6 +32,19 @@ interface Profile {
   student_id?: string;
 }
 
+// Professional Icon Components from code 2
+const MoonIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+  </svg>
+);
+
+const SunIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+  </svg>
+);
+
 export default function StudentDashboard() {
   const [gatePasses, setGatePasses] = useState<GatePass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +52,8 @@ export default function StudentDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false); // Added refreshing state
+  const [refreshing, setRefreshing] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   const router = useRouter();
 
   const fetchGatePasses = useCallback(async (studentId: string) => {
@@ -136,6 +150,10 @@ export default function StudentDashboard() {
     }
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   useEffect(() => {
     checkUserAndFetchData();
   }, [checkUserAndFetchData]);
@@ -190,12 +208,35 @@ export default function StudentDashboard() {
     return 'Good evening';
   };
 
+  // Professional theme classes from code 2
+  const themeClasses = {
+    background: darkMode 
+      ? "bg-gray-900" 
+      : "bg-gradient-to-br from-gray-50 to-gray-100",
+    header: darkMode
+      ? "bg-gray-800 border-b border-gray-700"
+      : "bg-white border-b border-gray-200",
+    card: darkMode 
+      ? "bg-gray-800 border border-gray-700" 
+      : "bg-white border border-gray-100",
+    text: {
+      primary: darkMode ? "text-white" : "text-gray-900",
+      secondary: darkMode ? "text-gray-300" : "text-gray-600",
+      muted: darkMode ? "text-gray-400" : "text-gray-500",
+    },
+    button: {
+      secondary: darkMode
+        ? "bg-gray-700 hover:bg-gray-600 text-white border border-gray-600"
+        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50",
+    }
+  };
+
   const stats = getStats();
 
   // Show loading state while checking authentication and role
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <div className={`min-h-screen ${themeClasses.background} p-6 transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse space-y-6">
             {/* Welcome Skeleton */}
@@ -222,228 +263,287 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Welcome Header with Logout */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div className="flex-1">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-              {getGreeting()}, {getUserName()}! 👋
-            </h1>
-            <p className="text-base sm:text-lg text-gray-600">
-              Welcome to your gate pass dashboard. Here's an overview of your requests.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Refresh Button */}
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="inline-flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-gray-50 transition-colors shadow disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-              title="Refresh data"
-            >
-              <ArrowPathIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">
-                {refreshing ? 'Refreshing...' : 'Refresh'}
-              </span>
-            </button>
+    <div className={`min-h-screen ${themeClasses.background} transition-colors duration-300`}>
+      
+      {/* Header from code 2 */}
+      <header className={`${themeClasses.header} sticky top-0 z-50 transition-colors duration-300`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                darkMode ? "" : ""
+              }`}>
+                <img 
+                  src="/Logo_main.png" 
+                  alt="Logo" 
+                  className="w-18 h-18 object-contain"
+                />
+              </div>
+              <div>
+                <h1 className={`text-lg font-semibold ${themeClasses.text.primary}`}>Cabin Khojo</h1>
+                <p className={`text-xs ${themeClasses.text.muted}`}>Staff Locator System</p>
+              </div>
+            </div>
             
-            {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              disabled={logoutLoading}
-              className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-            >
-              <ArrowRightOnRectangleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">
-                {logoutLoading ? 'Logging out...' : 'Logout'}
-              </span>
-              <span className="sm:hidden">
-                {logoutLoading ? '...' : 'Logout'}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Header with Actions */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Gate Pass Dashboard</h2>
-            <p className="text-gray-600 mt-2">Manage and track your gate pass requests</p>
-          </div>
-          <Link
-            href="/student/create-pass"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl mt-4 sm:mt-0"
-          >
-            <PlusIcon className="w-5 h-5" />
-            New Gate Pass
-          </Link>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Requests</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-              </div>
-              <div className="p-3 bg-indigo-50 rounded-lg">
-                <CalendarIcon className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Approved</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">{stats.approved}</p>
-              </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <CheckCircleIcon className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending}</p>
-              </div>
-              <div className="p-3 bg-yellow-50 rounded-lg">
-                <ClockIcon className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold text-red-600 mt-1">{stats.rejected}</p>
-              </div>
-              <div className="p-3 bg-red-50 rounded-lg">
-                <XCircleIcon className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {[
-            { key: 'all' as const, label: 'All Requests', count: stats.total },
-            { key: 'pending' as const, label: 'Pending', count: stats.pending },
-            { key: 'approved' as const, label: 'Approved', count: stats.approved },
-            { key: 'rejected' as const, label: 'Rejected', count: stats.rejected },
-          ].map(({ key, label, count }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`px-4 py-2 rounded-lg transition-all ${
-                filter === key
-                  ? 'bg-indigo-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 hover:bg-gray-50 shadow'
-              }`}
-            >
-              {label} ({count})
-            </button>
-          ))}
-        </div>
-
-        {/* Gate Passes List */}
-        <div className="space-y-4">
-          {filteredPasses.map((pass) => {
-            const statusConfig = getStatusConfig(pass.status);
-            const StatusIcon = statusConfig.icon;
-            
-            return (
-              <div
-                key={pass.id}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden"
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg border transition-all duration-200 ${
+                  darkMode 
+                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-yellow-400" 
+                    : "bg-white border-gray-300 hover:bg-gray-50 text-gray-600"
+                }`}
               >
-                <div className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                          {pass.reason}
-                        </h3>
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${statusConfig.color}`}>
-                          <StatusIcon className="w-4 h-4" />
-                          {statusConfig.label}
-                        </span>
+                {darkMode ? <SunIcon /> : <MoonIcon />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Welcome Header with Logout */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div className="flex-1">
+              <h1 className={`text-3xl sm:text-4xl font-bold ${themeClasses.text.primary} mb-2`}>
+                {getGreeting()}, {getUserName()}! 👋
+              </h1>
+              <p className={`text-base sm:text-lg ${themeClasses.text.secondary}`}>
+                Welcome to your gate pass dashboard. Here's an overview of your requests.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Refresh Button */}
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className={`inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition-colors shadow disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${themeClasses.button.secondary}`}
+                title="Refresh data"
+              >
+                <ArrowPathIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">
+                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                </span>
+              </button>
+              
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              >
+                <ArrowRightOnRectangleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">
+                  {logoutLoading ? 'Logging out...' : 'Logout'}
+                </span>
+                <span className="sm:hidden">
+                  {logoutLoading ? '...' : 'Logout'}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Header with Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+              <h2 className={`text-2xl font-bold ${themeClasses.text.primary}`}>Gate Pass Dashboard</h2>
+              <p className={`${themeClasses.text.secondary} mt-2`}>Manage and track your gate pass requests</p>
+            </div>
+            <Link
+              href="/student/create-pass"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl mt-4 sm:mt-0"
+            >
+              <PlusIcon className="w-5 h-5" />
+              New Gate Pass
+            </Link>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className={`p-6 rounded-2xl shadow-lg border transition-colors duration-300 ${themeClasses.card}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Total Requests</p>
+                  <p className={`text-2xl font-bold ${themeClasses.text.primary} mt-1`}>{stats.total}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-indigo-900/30' : 'bg-indigo-50'}`}>
+                  <CalendarIcon className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 rounded-2xl shadow-lg border transition-colors duration-300 ${themeClasses.card}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Approved</p>
+                  <p className="text-2xl font-bold text-green-600 mt-1">{stats.approved}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/30' : 'bg-green-50'}`}>
+                  <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 rounded-2xl shadow-lg border transition-colors duration-300 ${themeClasses.card}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Pending</p>
+                  <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-yellow-900/30' : 'bg-yellow-50'}`}>
+                  <ClockIcon className="w-6 h-6 text-yellow-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className={`p-6 rounded-2xl shadow-lg border transition-colors duration-300 ${themeClasses.card}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeClasses.text.secondary}`}>Rejected</p>
+                  <p className="text-2xl font-bold text-red-600 mt-1">{stats.rejected}</p>
+                </div>
+                <div className={`p-3 rounded-lg ${darkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                  <XCircleIcon className="w-6 h-6 text-red-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {[
+              { key: 'all' as const, label: 'All Requests', count: stats.total },
+              { key: 'pending' as const, label: 'Pending', count: stats.pending },
+              { key: 'approved' as const, label: 'Approved', count: stats.approved },
+              { key: 'rejected' as const, label: 'Rejected', count: stats.rejected },
+            ].map(({ key, label, count }) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  filter === key
+                    ? 'bg-indigo-600 text-white shadow-lg'
+                    : `${themeClasses.button.secondary}`
+                }`}
+              >
+                {label} ({count})
+              </button>
+            ))}
+          </div>
+
+          {/* Gate Passes List */}
+          <div className="space-y-4">
+            {filteredPasses.map((pass) => {
+              const statusConfig = getStatusConfig(pass.status);
+              const StatusIcon = statusConfig.icon;
+              
+              return (
+                <div
+                  key={pass.id}
+                  className={`rounded-2xl shadow-lg border hover:shadow-xl transition-all duration-300 overflow-hidden ${themeClasses.card}`}
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className={`text-lg font-semibold ${themeClasses.text.primary} line-clamp-2`}>
+                            {pass.reason}
+                          </h3>
+                          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${statusConfig.color}`}>
+                            <StatusIcon className="w-4 h-4" />
+                            {statusConfig.label}
+                          </span>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <CalendarIcon className="w-4 h-4" />
+                            <span>Date: {new Date(pass.date).toLocaleDateString('en-US', { 
+                              weekday: 'short', 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>Created: {new Date(pass.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          <span>Date: {new Date(pass.date).toLocaleDateString('en-US', { 
-                            weekday: 'short', 
-                            year: 'numeric', 
-                            month: 'short', 
-                            day: 'numeric' 
-                          })}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <ClockIcon className="w-4 h-4" />
-                          <span>Created: {new Date(pass.created_at).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {pass.status === 'approved' && (
+                      <div className="flex items-center gap-2">
+                        {pass.status === 'approved' && (
+                          <Link
+                            href={`/student/pass/${pass.id}`}
+                            className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            <QrCodeIcon className="w-4 h-4" />
+                            QR Code
+                          </Link>
+                        )}
                         <Link
                           href={`/student/pass/${pass.id}`}
-                          className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                          className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
                         >
-                          <QrCodeIcon className="w-4 h-4" />
-                          QR Code
+                          <EyeIcon className="w-4 h-4" />
+                          View Details
                         </Link>
-                      )}
-                      <Link
-                        href={`/student/pass/${pass.id}`}
-                        className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <EyeIcon className="w-4 h-4" />
-                        View Details
-                      </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
+              );
+            })}
+            
+            {filteredPasses.length === 0 && (
+              <div className={`text-center py-12 rounded-2xl shadow-lg border ${themeClasses.card}`}>
+                <div className="max-w-md mx-auto">
+                  <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className={`text-lg font-semibold ${themeClasses.text.primary} mb-2`}>
+                    No gate passes found
+                  </h3>
+                  <p className={`${themeClasses.text.secondary} mb-6`}>
+                    {filter === 'all' 
+                      ? "You haven't created any gate pass requests yet."
+                      : `No ${filter} gate pass requests found.`
+                    }
+                  </p>
+                  {filter !== 'all' && (
+                    <button
+                      onClick={() => setFilter('all')}
+                      className="text-indigo-600 hover:text-indigo-700 font-medium"
+                    >
+                      View all requests
+                    </button>
+                  )}
+                </div>
               </div>
-            );
-          })}
-          
-          {filteredPasses.length === 0 && (
-            <div className="text-center py-12 bg-white rounded-2xl shadow-lg border border-gray-100">
-              <div className="max-w-md mx-auto">
-                <CalendarIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No gate passes found
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  {filter === 'all' 
-                    ? "You haven't created any gate pass requests yet."
-                    : `No ${filter} gate pass requests found.`
-                  }
-                </p>
-                {filter !== 'all' && (
-                  <button
-                    onClick={() => setFilter('all')}
-                    className="text-indigo-600 hover:text-indigo-700 font-medium"
-                  >
-                    View all requests
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Footer from code 2 */}
+      <footer className={`border-t ${
+        darkMode ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-white"
+      } transition-colors duration-300`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className={`text-sm ${themeClasses.text.muted}`}>
+                © 2025 Cabin Khojo
+              </p>
+            </div>
+            <div>
+              <p className={`text-sm ${themeClasses.text.muted}`}>
+                Institutional Staff Management
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

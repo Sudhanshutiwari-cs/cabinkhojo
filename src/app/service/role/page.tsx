@@ -144,8 +144,7 @@ export default function RoleSelection() {
       title: 'HOD / Faculty',
       description: 'Manage department, approve requests, and access administrative features',
       icon: HODIcon,
-      color: 'green',
-      features: ['Manage Department', 'Approve Requests', 'Faculty Dashboard']
+      color: 'green'
     },
     {
       id: 'guard',
@@ -255,17 +254,6 @@ export default function RoleSelection() {
                   {role.description}
                 </p>
 
-                {/* Features List */}
-                <div className="space-y-2 mb-6">
-                  {role.features.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${colorClasses.bg}`}></div>
-                      <span className={`text-sm ${themeClasses.text.secondary}`}>
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
-                </div>
 
                 <div className={`text-center ${colorClasses.text} font-semibold flex items-center justify-center`}>
                   Select Role
