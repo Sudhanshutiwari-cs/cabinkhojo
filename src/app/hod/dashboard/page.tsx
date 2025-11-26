@@ -26,7 +26,9 @@ import {
   FiArrowDown,
   FiFileText,
   FiCheck,
-  FiSquare
+  FiSquare,
+  FiSearch,
+  FiX
 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 
@@ -97,7 +99,7 @@ export default function HODRequests() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'used'>('all');
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userDepartment, setUserDepartment] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -112,6 +114,7 @@ export default function HODRequests() {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [batchOperationLoading, setBatchOperationLoading] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Professional theme classes from code 2
   const themeClasses = {
@@ -335,6 +338,11 @@ export default function HODRequests() {
     } finally {
       setStudentsLoading(false);
     }
+  };
+
+  // Search handler
+  const handleSearch = (query: string): void => {
+    setSearchQuery(query);
   };
 
   // Selection handlers
@@ -930,25 +938,30 @@ export default function HODRequests() {
   };
 
   const getStatusConfig = (status: string) => {
-    const configs = {
-      pending: { 
-        color: 'bg-yellow-50 text-yellow-800 border-yellow-200',
-        icon: FiClock,
-        label: 'Pending Review'
-      },
-      approved: { 
-        color: 'bg-green-50 text-green-800 border-green-200',
-        icon: FiCheckCircle,
-        label: 'Approved'
-      },
-      rejected: { 
-        color: 'bg-red-50 text-red-800 border-red-200',
-        icon: FiXCircle,
-        label: 'Rejected'
-      }
-    };
-    return configs[status as keyof typeof configs] || configs.pending;
+  const configs = {
+    pending: { 
+      color: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+      icon: FiClock,
+      label: 'Pending Review'
+    },
+    approved: { 
+      color: 'bg-green-50 text-green-800 border-green-200',
+      icon: FiCheckCircle,
+      label: 'Approved'
+    },
+    rejected: { 
+      color: 'bg-red-50 text-red-800 border-red-200',
+      icon: FiXCircle,
+      label: 'Rejected'
+    },
+    used: { 
+      color: 'bg-purple-50 text-purple-800 border-purple-200',
+      icon: FiCheckCircle, // or choose a different icon like FiCheckSquare
+      label: 'Used'
+    }
   };
+  return configs[status as keyof typeof configs] || configs.pending;
+};
 
   const downloadQRCode = async (qrUrl: string, studentName?: string): Promise<void> => {
     try {
@@ -975,9 +988,18 @@ export default function HODRequests() {
 
   const availableYears = Array.from(new Set(students.map(student => student.year).filter(year => year != null))).sort((a, b) => b - a);
 
-  const filteredStudents = selectedYear === 'all' 
+  const filteredStudents = (selectedYear === 'all' 
     ? students 
-    : students.filter(student => student.year === selectedYear);
+    : students.filter(student => student.year === selectedYear)
+  ).filter(student => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const nameMatch = student.name.toLowerCase().includes(query);
+    const rollMatch = student.roll.toLowerCase().includes(query);
+    
+    return nameMatch || rollMatch;
+  });
 
   if (loading && !userRole && !unauthorized) {
     return (
@@ -1345,42 +1367,75 @@ export default function HODRequests() {
               className="mb-8"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className={`flex items-center space-x-2 mr-4 ${themeClasses.text.secondary}`}>
-                    <FiFilter className="w-4 h-4" />
-                    <span className="text-sm font-medium">Filter by year:</span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedYear('all')}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
-                      selectedYear === 'all'
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
-                        : `${themeClasses.button.secondary}`
-                    }`}
-                  >
-                    <span>All Years</span>
-                    <span className="px-2 py-1 text-xs bg-white/20 rounded-full">
-                      {students.length}
-                    </span>
-                  </button>
-                  {availableYears.map((year) => (
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  {/* Year filter buttons */}
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <div className={`flex items-center space-x-2 mr-4 ${themeClasses.text.secondary}`}>
+                      <FiFilter className="w-4 h-4" />
+                      <span className="text-sm font-medium">Filter by year:</span>
+                    </div>
                     <button
-                      key={year}
-                      onClick={() => setSelectedYear(year)}
+                      onClick={() => setSelectedYear('all')}
                       className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
-                        selectedYear === year
+                        selectedYear === 'all'
                           ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
                           : `${themeClasses.button.secondary}`
                       }`}
                     >
-                      <span>Year {year}</span>
+                      <span>All Years</span>
                       <span className="px-2 py-1 text-xs bg-white/20 rounded-full">
-                        {students.filter(s => s.year === year).length}
+                        {students.length}
                       </span>
                     </button>
-                  ))}
+                    {availableYears.map((year) => (
+                      <button
+                        key={year}
+                        onClick={() => setSelectedYear(year)}
+                        className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
+                          selectedYear === year
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25'
+                            : `${themeClasses.button.secondary}`
+                        }`}
+                      >
+                        <span>Year {year}</span>
+                        <span className="px-2 py-1 text-xs bg-white/20 rounded-full">
+                          {students.filter(s => s.year === year).length}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl border transition-colors ${
+                      darkMode 
+                        ? 'bg-gray-800 border-gray-600 focus-within:border-blue-500' 
+                        : 'bg-white border-gray-300 focus-within:border-blue-500'
+                    }`}>
+                      <FiSearch className={`w-4 h-4 ${themeClasses.text.muted}`} />
+                      <input
+                        type="text"
+                        placeholder="Search by name or roll number..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className={`bg-transparent border-none focus:outline-none focus:ring-0 w-64 ${
+                          darkMode ? 'text-white placeholder-gray-400' : 'text-gray-900 placeholder-gray-500'
+                        }`}
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => handleSearch('')}
+                          className={`p-1 rounded-full hover:bg-opacity-20 transition-colors ${
+                            darkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+                          }`}
+                        >
+                          <FiX className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
+
                 {/* Batch Operation Buttons */}
                 {selectedStudents.size > 0 && (
                   <div className="flex flex-wrap gap-3">
@@ -1433,6 +1488,32 @@ export default function HODRequests() {
                   </button>
                 </div>
               </div>
+
+              {/* Search Results Info */}
+              {searchQuery && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-3 rounded-lg mb-4 ${
+                    darkMode ? 'bg-blue-900 border border-blue-700' : 'bg-blue-50 border border-blue-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <FiSearch className="w-4 h-4 text-blue-600" />
+                      <span className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-800'}`}>
+                        Showing {filteredStudents.length} result(s) for "{searchQuery}"
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleSearch('')}
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Selection Info */}
               {selectedStudents.size > 0 && (
@@ -1651,7 +1732,9 @@ export default function HODRequests() {
                     <p className={`max-w-sm mx-auto mb-4 ${themeClasses.text.secondary}`}>
                       {studentsLoading 
                         ? "Loading students..."
-                        : "No students found in your department."
+                        : searchQuery
+                          ? `No students found matching "${searchQuery}"`
+                          : "No students found in your department."
                       }
                     </p>
                     <div className="space-y-3">
@@ -1661,6 +1744,14 @@ export default function HODRequests() {
                       >
                         {studentsLoading ? 'Loading...' : 'Refresh Students'}
                       </button>
+                      {searchQuery && (
+                        <button
+                          onClick={() => handleSearch('')}
+                          className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors ml-2"
+                        >
+                          Clear Search
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 ) : (
