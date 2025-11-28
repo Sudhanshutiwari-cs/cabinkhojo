@@ -204,100 +204,73 @@ export default function Home() {
         </div>
 
         {/* Institute Code Input Section */}
-        <div className="max-w-md mx-auto">
-          <div className={`rounded-lg ${themeClasses.card} p-8 border-l-4 border-blue-600 transition-colors duration-300 shadow-lg`}>
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              darkMode ? "bg-blue-900/30" : "bg-blue-50"
-            }`}>
-              <BuildingIcon className={`w-10 h-10 ${themeClasses.text.accent}`} />
-            </div>
-            
-            <h2 className={`text-2xl font-bold ${themeClasses.text.primary} mb-2 text-center`}>
-              Enter Institute Code
-            </h2>
-            
-            <p className={`${themeClasses.text.secondary} mb-6 text-center`}>
-              Please enter your unique institute code to proceed to the portal
-            </p>
+        <div className="max-w-sm mx-auto">
+  <div className={`rounded-lg ${themeClasses.card} p-6 border-l-4 border-blue-600 shadow-md`}>
+    <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+      darkMode ? "bg-blue-900/30" : "bg-blue-50"
+    }`}>
+      <BuildingIcon className={`w-8 h-8 ${themeClasses.text.accent}`} />
+    </div>
+    
+    <h2 className={`text-xl font-bold ${themeClasses.text.primary} mb-2 text-center`}>
+      Institute Code
+    </h2>
+    
+    <p className={`${themeClasses.text.secondary} mb-4 text-center text-sm`}>
+      Enter your unique institute code
+    </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="instituteCode" className={`block text-sm font-medium ${themeClasses.text.secondary} mb-2`}>
-                  Institute Code
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <CodeIcon className={`w-5 h-5 ${themeClasses.text.muted}`} />
-                  </div>
-                  <input
-                    id="instituteCode"
-                    type="text"
-                    value={instituteCode}
-                    onChange={(e) => setInstituteCode(e.target.value)}
-                    placeholder="e.g., kit165, kit550, mit202"
-                    className={`block w-full pl-10 pr-4 py-3 border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      themeClasses.input
-                    } ${error ? 'border-red-500' : ''}`}
-                    disabled={isLoading}
-                  />
-                </div>
-                {error && (
-                  <p className={`mt-2 text-sm ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
-                    {error}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading || !instituteCode.trim()}
-                className={`w-full py-3 px-4 rounded-lg border transition-all duration-200 flex items-center justify-center font-semibold ${
-                  isLoading || !instituteCode.trim()
-                    ? themeClasses.button.disabled
-                    : themeClasses.button.primary
-                } ${isLoading ? 'cursor-not-allowed' : 'hover:shadow-md'}`}
-              >
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    Continue to Portal
-                    <ArrowIcon className="ml-2" />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Valid Codes Info */}
-            <div className={`mt-6 p-4 rounded-lg ${themeClasses.status.info} border text-sm`}>
-              <p className={`font-medium ${themeClasses.text.primary} mb-2`}>
-                Valid Institute Codes:
-              </p>
-              <div className="space-y-1">
-                {allowedCodes.map((code, index) => (
-                  <div key={code} className="flex items-center space-x-2">
-                    <CheckIcon className={`w-4 h-4 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
-                    <span className={themeClasses.text.secondary}>{code}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Help Text */}
-            <div className={`mt-4 p-3 rounded-lg ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'} text-xs`}>
-              <p className={themeClasses.text.muted}>
-                <strong>Note:</strong> Only the codes listed above are currently supported. 
-                Contact your administrator if you need access.
-              </p>
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <CodeIcon className={`w-4 h-4 ${themeClasses.text.muted}`} />
           </div>
+          <input
+            id="instituteCode"
+            type="text"
+            value={instituteCode}
+            onChange={(e) => setInstituteCode(e.target.value)}
+            placeholder="e.g., kit165, kit550, mit202"
+            className={`block w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              themeClasses.input
+            } ${error ? 'border-red-500' : ''}`}
+            disabled={isLoading}
+          />
         </div>
+        {error && (
+          <p className={`mt-1 text-xs ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+            {error}
+          </p>
+        )}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading || !instituteCode.trim()}
+        className={`w-full py-2 px-4 rounded-lg border text-sm font-medium transition-all flex items-center justify-center ${
+          isLoading || !instituteCode.trim()
+            ? themeClasses.button.disabled
+            : themeClasses.button.primary
+        }`}
+      >
+        {isLoading ? (
+          <>
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Verifying...
+          </>
+        ) : (
+          'Continue to Portal'
+        )}
+      </button>
+    </form>
+
+   
+  </div>
+</div>
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
